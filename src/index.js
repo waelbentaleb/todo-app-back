@@ -3,6 +3,7 @@ const express = require('express')
 const morgan = require('morgan')
 const mongoose = require('mongoose')
 const cors = require('cors')
+const axios = require('axios')
 const bodyParser = require('body-parser')
 const Task = require('./task')
 
@@ -25,8 +26,19 @@ app.get('/', (req, res) => {
 
 app.post('/tasks', async (req, res) => {
   try {
+
+    const array = req.body.todo.concat(req.body.done)
+    let str = ''
+
+    for (const task of array)
+      str += task
+
+    str = await axios.get('http://localhost:3010/hash/' + str)
+    console.log(str.data.data);
+
     await Task.deleteMany({})
     await Task.create({ todo: req.body.todo, done: req.body.done })
+
     res.json({ message: 'It works!' })
   } catch (error) {
     console.log(error);
