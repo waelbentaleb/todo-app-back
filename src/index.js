@@ -9,6 +9,7 @@ const Task = require('./task')
 
 const PORT = process.env.PORT
 const MONGODB_URI = process.env.MONGODB_URI
+const MICROSERVICE_URL = process.env.MICROSERVICE_URL
 
 const app = express()
 
@@ -30,12 +31,12 @@ app.post('/tasks', async (req, res) => {
     const doneArray = []
 
     for (const task of req.body.todo) {
-      const response = await axios.get(encodeURI('http://localhost:3010/hash/' + task))
+      const response = await axios.get(encodeURI(MICROSERVICE_URL + task))
       todoArray.push([task.split('_')[0], response.data.data.slice(0, 5)].join('_'))
     }
 
     for (const task of req.body.done) {
-      const response = await axios.get(encodeURI('http://localhost:3010/hash/' + task))
+      const response = await axios.get(encodeURI(MICROSERVICE_URL + task))
       doneArray.push([task.split('_')[0], response.data.data.slice(0, 5)].join('_'))
     }
 
@@ -52,7 +53,7 @@ app.post('/tasks', async (req, res) => {
 app.get('/tasks', async (req, res) => {
   try {
     const tasks = await Task.find().select('todo done')
-    res.json({ message: 'It works!', data: tasks[0] })
+    res.json({ message: 'It works!', data: tasks[0] || { todo: [], done: [] } })
   } catch (error) {
     console.log(error);
     res.json({ message: 'Something went wrong' })
