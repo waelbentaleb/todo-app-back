@@ -26,20 +26,23 @@ app.get('/', (req, res) => {
 
 app.post('/tasks', async (req, res) => {
   try {
+    const todoArray = []
+    const doneArray = []
 
-    const array = req.body.todo.concat(req.body.done)
-    let str = ''
+    for (const task of req.body.todo) {
+      const response = await axios.get(encodeURI('http://localhost:3010/hash/' + task))
+      todoArray.push([task.split('_')[0], response.data.data.slice(0, 5)].join('_'))
+    }
 
-    for (const task of array)
-      str += task
-
-    str = await axios.get('http://localhost:3010/hash/' + str)
-    console.log(str.data.data);
+    for (const task of req.body.done) {
+      const response = await axios.get(encodeURI('http://localhost:3010/hash/' + task))
+      doneArray.push([task.split('_')[0], response.data.data.slice(0, 5)].join('_'))
+    }
 
     await Task.deleteMany({})
-    await Task.create({ todo: req.body.todo, done: req.body.done })
+    await Task.create({ todo: todoArray, done: doneArray })
 
-    res.json({ message: 'It works!' })
+    res.json({ todoArray, doneArray })
   } catch (error) {
     console.log(error);
     res.json({ message: 'Something went wrong' })
