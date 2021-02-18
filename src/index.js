@@ -22,7 +22,7 @@ app.use(morgan('dev'))
 app.use(cors())
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  return res.send('Hello World!')
 })
 
 app.post('/tasks', async (req, res) => {
@@ -43,20 +43,20 @@ app.post('/tasks', async (req, res) => {
     await Task.deleteMany({})
     await Task.create({ todo: todoArray, done: doneArray })
 
-    res.json({ todoArray, doneArray })
+    return res.json({ todoArray, doneArray })
   } catch (error) {
     console.log(error);
-    res.json({ message: 'Something went wrong' })
+    return res.status(500).end()
   }
 })
 
 app.get('/tasks', async (req, res) => {
   try {
     const tasks = await Task.find().select('todo done')
-    res.json({ message: 'It works!', data: tasks[0] || { todo: [], done: [] } })
+    return res.json({ message: 'It works!', data: tasks[0] || { todo: [], done: [] } })
   } catch (error) {
     console.log(error);
-    res.json({ message: 'Something went wrong' })
+    return res.status(500).end()
   }
 })
 
